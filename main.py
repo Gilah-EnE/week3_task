@@ -4,8 +4,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 async def download():
-    tasks.append(asyncio.create_task(download()))
     url = await ainput("> ")
+    tasks.append(asyncio.create_task(download()))
 
     print(f"Started {url}")
     await asyncio.sleep(4)  # емуляція процесу завантаження
