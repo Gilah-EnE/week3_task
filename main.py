@@ -1,15 +1,27 @@
 import requests
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urlparse
+
+count = 0
+tasks = []
 
 
 async def download():
     url = await ainput("> ")
     tasks.append(asyncio.create_task(download()))
+    global count
+    print(f"Started downloading a file from {urlparse(url).netloc}")
+    count += 1
+    print(f"Downloading {count} files")
+    await asyncio.sleep(20)  # симуляція процесу завантаження
+    count -= 1
+    print(f"Finished downloading a file from {urlparse(url).netloc}")
 
-    print(f"Started {url}")
-    await asyncio.sleep(4)  # емуляція процесу завантаження
-    print(f"Done {url}")
+    if count > 0:
+        print(f"Downloading {count} files")
+    elif count == 0:
+        print("All files finished downloading")
 
 
 async def ainput(prompt: str = "") -> str:
@@ -19,8 +31,6 @@ async def ainput(prompt: str = "") -> str:
 
 async def main():
     x = 0
-    global tasks
-    tasks = []
     while True:
         tasks.append(asyncio.create_task(download()))
         await tasks[x]
