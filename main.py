@@ -2,6 +2,7 @@ import requests
 import asyncio
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from urllib.parse import urlparse
+import validators
 
 count = 0
 tasks = []
@@ -11,23 +12,29 @@ async def download():
     url = await ainput("> ")
     tasks.append(asyncio.create_task(download()))
     global count
-    print(f"Started downloading a file from {urlparse(url).netloc}")
-    count += 1
-    print(f"Downloading {count} files")
 
-    with ProcessPoolExecutor() as executor:
-        file = await asyncio.get_event_loop().run_in_executor(executor, requests.get, url)
-
-        with open(url.split("/")[-1], "wb") as savefile:
-            savefile.write(file.content)
-
-    count -= 1
-    print(f"Finished downloading a file from {urlparse(url).netloc}")
-
-    if count > 0:
+    if validators.url(url):
+        print(f"Started downloading a file from {urlparse(url).netloc}")
+        count += 1
         print(f"Downloading {count} files")
-    elif count == 0:
-        print("All files finished downloading")
+
+        with ProcessPoolExecutor() as executor:
+            file = await asyncio.get_event_loop().run_in_executor(
+                executor, requests.get, url
+            )
+
+            with open(url.split("/")[-1], "wb") as savefile:
+                savefile.write(file.content)
+
+        count -= 1
+        print(f"Finished downloading a file from {urlparse(url).netloc}")
+
+        if count > 0:
+            print(f"Downloading {count} files")
+        elif count == 0:
+            print("All files finished downloading")
+    else:
+        print("Invalid URL")
 
 
 async def ainput(prompt: str = "") -> str:
