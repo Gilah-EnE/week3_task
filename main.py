@@ -1,6 +1,6 @@
 import requests
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from urllib.parse import urlparse
 
 count = 0
@@ -14,7 +14,13 @@ async def download():
     print(f"Started downloading a file from {urlparse(url).netloc}")
     count += 1
     print(f"Downloading {count} files")
-    await asyncio.sleep(20)  # симуляція процесу завантаження
+
+    with ProcessPoolExecutor() as executor:
+        file = await asyncio.get_event_loop().run_in_executor(executor, requests.get, url)
+
+        with open(url.split("/")[-1], "wb") as savefile:
+            savefile.write(file.content)
+
     count -= 1
     print(f"Finished downloading a file from {urlparse(url).netloc}")
 
